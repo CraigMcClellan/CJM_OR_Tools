@@ -168,6 +168,22 @@ class SinglyLinkedList(object):
                                 _liCurrent = _liCurrent.NextItem  
 
 # SinglyLinkedQueueItem Class
+"""     This is a class for a Singly Linked Queue Item (aka Node) data structure.  
+        It is initialized by OPTIONALLY passing a Singly Linked Queue Item Node, an Optional Label, 
+        and an optional Next List Item.  It is modified code from "VBA Developer's Handbook, 2nd Edition" by Ken Getz 
+        and Mike Gilbert, Sybex, 2001. This code was given to me by Professor Steven Charbonneau for the course OR 643
+        Network Optimization.  It is adapted by me from the VBA code for that course. 
+
+        Attributes:
+                .Node - Singly Linked Queue Item 
+                .Label - Optional Data variable; Various Uses but mainly for labeling queue items for Network Modeling
+                .NextItem - Pointer to the Next Singly Linked Queue Item 
+
+        Methods:
+                .SetNextItem - Method to set a Queue Item's .NextItem attribute
+                .SetLabel - Method to set a Queue Items's .Label attribute
+"""
+
 class SinglyLinkedQueueItem(object):
 
         def __init__(self, slqi_Node = None, slqi_Label = None, slqi_NextItem = None):
@@ -185,101 +201,28 @@ class SinglyLinkedQueueItem(object):
                 self.NextItem = None 
 
 # SinglyLinkedQueue Class
-"""
-        Option Explicit
-'This queue class is a minor modification From
-'the "VBA Developer's Handbook, 2nd Edition"
-' by Ken Getz and Mike Gilbert
-' Copyright 2001; Sybex, Inc. All rights reserved.
+"""      
+        This queue class is adapted from VBA code from the course OR 643 Network Optimization. 
+        It is a minor modification From 'the "VBA Developer's Handbook, 2nd Edition"
+        by Ken Getz and Mike Gilbert  Copyright 2001; Sybex, Inc. All rights reserved. The VBA code 
+        was given to me by Professor Steven Charbonneau. It is adapted by me from the VBA code for that course. 
 
-' Queue class.
+        Attributes:
+                .qFront - Pointer to the Queue Item at the front of the queue 
+                .qRear - Pointer to the Queue Item at the rear of the queue
+                .qCount - Counter that tracks the number of Queue Items in the Queue
 
-'Initialize the objects we need to make the queue work
-Private qFront As QueueItem 'create the front of the queue (where things are removed)
-Private qRear As QueueItem  'create the back of the queue (where things are added)
-Private qCount As Integer
-
-'Call this sub when adding a new item to the queue.  This routine takes two arguments
-'Node: an integer variable that represents the node we are looking for
-'Label: a variant variable that accepts any type of argument.  This might be a text or number
-Public Sub Add(Node As Integer, Optional Label As Variant = Null)
-    Dim qNew As QueueItem
-    Set qNew = New QueueItem
-    
-    qNew.Node = Node    'assign the node value to the queue item
-    qNew.Label = Label  'assign the label value to the queue item
-    
-    'If the queue is empty, need to make sure we poit both the front and the rear of the queue to itself
-    If IsEmpty Then     'call the function that determines if the queue is empty
-        Set qFront = qNew   'point the front of the queue to the item we just added
-        Set qRear = qNew    'point the rear of the queue to the item we just added
-    Else    'There are other items in the queue, put the new item in the back
-        Set qRear.NextItem = qNew   'point the previous last item to the new item
-        Set qRear = qNew            'make the new item the back of the queue
-    End If
-    qCount = qCount + 1
-    
-End Sub
-
-'Sometimes you may just want to see what is at the front of the queue without removing it.
-'This function allows you to do that.  It lets you look at the front element in the queue.
-'It returns nothing if the queue is empty
-Public Property Get QueueFront() As QueueItem
-    If IsEmpty Then 'make sure the queue is not empty
-        Set QueueFront = Nothing  'if it is, then set the function value equal to nothing
-    Else    'it isn't empty
-        Set QueueFront = qFront   'set the function value equal to the front of the queue
-    End If
-End Property
-
-
-'This function removes the front of the queue and returns the actual queueitem so you can use its components
-'it is not required to recieve the return of the queue when you remove it.
-Public Function Remove() As QueueItem
-    
-    'Check to see if the item is empty, if it is, then return a nothing value
-    If IsEmpty Then
-        Set Remove = Nothing
-    Else    'The queue is not empty
-        Set Remove = qFront 'assign the queue item pointer to the function
-        'check to make sure we are not removing the only item in the queue
-        If qFront Is qRear Then 'if so then do the following
-            Set qFront = Nothing    'point the front to nothing
-            Set qRear = Nothing     'point the back to nothing
-        Else    'it isn't the only item
-            Set qFront = qFront.NextItem    'make next item the front of the queue
-                                            'this is where/how the first item in the queue gets removed
-        End If
-        qCount = qCount - 1
-    End If
-End Function
-
-'This is a property of a queue.  It returns true if the queue is empty
-Property Get IsEmpty() As Boolean
-    'If both q front and rear are empty, this line evaluates to true
-    IsEmpty = ((qFront Is Nothing) And (qRear Is Nothing))
-End Property
-
-Private Sub Class_Initialize()
-    ' Make the queue appear empty.
-    Set qFront = Nothing
-    Set qRear = Nothing
-End Sub
-
-Private Sub Class_Terminate()
-    ' Release memory used by the queue.
-    Set qFront = Nothing
-    Set qRear = Nothing
-End Sub
-
-'This is a property that tells you how many elements are in the queue.  This is convenient
-'in that you don't have to iterate across the entire queue to find the answer, it keeps count
-'dont know if this will ever find any use.  The state of most interest is when it is empty
-'and we already have a property for that.
-Public Property Get Count() As Integer
-    'Assign the value of deqCount to the property
-    Count = qCount
-End Property
+        Methods:
+                .IsEmpty - Returns boolean True if the Queue is empty and false if it contains a Queue Item
+                .Remove - Deletes the Queue Item at the front of the Queue and returns it
+                .Add - Adds a Queue Item to a Queue
+                        Use:
+                                SinglyLinkedQueueObject.Add(Node_Label, Optional Data_Label) 
+                                Where:
+                                        Node_Label - Integer Node abel
+                                        Data_Label - Optional Data Label; Mainly used for labeling nodes in Network
+                                                     Optimization Algorithms
+          
 """
 def SinglyLinkedQueue(object):
 
@@ -306,41 +249,37 @@ def SinglyLinkedQueue(object):
                                 self.qRear = None
                         else: # If more than one item
                                 self.qFront = self.qFront.NextItem
-                self.qCount -=
+                self.qCount -= 1
                 return __TempPointer    
 
-        def Add( _EndNode, Data_Label = None)
+        def Add( _EndNode, Data_Label = None):
         
-                qNew = SinglyLinkedQueueItem() 
+                qNew = SinglyLinkedQueueItem( _EndNode, Data_Label) # Create new Queue Item
 
-Public Sub Add(Node As Integer, Optional Label As Variant = Null)
-    Dim qNew As QueueItem
-    Set qNew = New QueueItem
-    
-    qNew.Node = Node    'assign the node value to the queue item
-    qNew.Label = Label  'assign the label value to the queue item
-    
-    'If the queue is empty, need to make sure we poit both the front and the rear of the queue to itself
-    If IsEmpty Then     'call the function that determines if the queue is empty
-        Set qFront = qNew   'point the front of the queue to the item we just added
-        Set qRear = qNew    'point the rear of the queue to the item we just added
-    Else    'There are other items in the queue, put the new item in the back
-        Set qRear.NextItem = qNew   'point the previous last item to the new item
-        Set qRear = qNew            'make the new item the back of the queue
-    End If
-    qCount = qCount + 1
-    
-End Sub 
-     
+                if self.IsEmpty: 
+                        self.qFront = qNew
+                        self.qRear = qNew
+                else:
+                        self.qRear.SetNextItem(qNew)
+                        self.qRear = qNew
+
+                self.qCount += 1
+
+        def __Terminate__(self):
+                self.qFront = None
+                self.qRear = None
                         
                 
 
 #----------------------------------------------- Functions ----------------------------------------------- 
 
+# Djikstra's Shortest Path Algorithm using lists
+"""    
+         Implementation of Djikstra's Shortest Path Algorithm to find the shortest path
+        from a Source Node to all other nodes in a network.  This is the most least efficient
+        implementation using only Lists """
+
 def SPA_Djikstra(SourceNode_arg, AdjArray_arg):
-        """     Implementation of Djikstra's Shortest Path Algorithm to find the shortest path
-                from a Source Node to all other nodes in a network.  This is the most least efficient
-                implementation using only Lists"""
 
         # Initializations 
         InfDist = 32000         #This is a VLN (Very Large Number) distance used to set the initial distances of each node; 
@@ -373,25 +312,4 @@ def SPA_Djikstra(SourceNode_arg, AdjArray_arg):
         return DistArray_arg, PredArray_arg    
 
          
-
-def main():
-
-        x = SinglyLinkedList()
-
-        x.AddItem(1, 32,None,2)
-
-        x.AddItem(2, 15,None,2)
-
-        x.AddItem(3, 23,None,2)
-
-        y = x.GetListHead
-
-        while not y is None:
-
-                print("Node: ", y.HeadNode, "\n")
-        
-                y = y.NextItem
-
-# This is the standard boilerplate that calls the main() function.
-if __name__ == '__main__':
-        main()           
+ 
