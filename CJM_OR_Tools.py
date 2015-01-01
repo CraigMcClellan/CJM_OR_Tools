@@ -1,7 +1,17 @@
+from collections import defaultdict
+import csv # Comma Seperated Variable Module
+
+"""     
+        Updates:
+                12/28/2014 - Singly Linked List - Completed and tested, planning on adding Lower Capacity Functionality at a later date
+                12/31/2014 - Added Singly Linked Queue Item and Singly Linked Queue, not tested yet, Added Adjacency Array Class
+
+"""
+
 #----------------------------------------------- Classes -----------------------------------------------
 
 # SinglyLinkedListItem Class 
-"""     This is a class for a Singly Linked List Item (aka Node) data structure.  
+"""     This is a class for a Singly Linked List Item  data structure.  
         It is initialized by OPTIONALLY passing the Head Node, Edge/Arc Cost, the UpperCapacity of the Edge/Arc,
         and the Next List Item.  It is modified code from "VBA Developer's Handbook, 2nd Edition" by Ken Getz 
         and Mike Gilbert, Sybex, 2001. This code was given to me by Professor Steven Charbonneau for the course OR 643
@@ -21,8 +31,7 @@
         Methods:
         .SetNextItem - This method allows for the update of the NextItem attribute       
 
-        Updates:
-        12/28/2014 - Completed and tested, planning on adding Lower Capacity Functionality at a later date
+        
 """      
 class SinglyLinkedListItem(object):
 
@@ -224,7 +233,7 @@ class SinglyLinkedQueueItem(object):
                                                      Optimization Algorithms
           
 """
-def SinglyLinkedQueue(object):
+class SinglyLinkedQueue(object):
 
         def __init__(self):
                 self.qFront = None # Pointer to the front of the queue where items are removed
@@ -269,7 +278,70 @@ def SinglyLinkedQueue(object):
                 self.qFront = None
                 self.qRear = None
                         
+# Adjacency Array Class
+"""     
+        This is an attempt at making an Adjacency Array class. I call it an Adjacency Array
+        because of convention but really my implementation is a Dict of Singly Linked Lists.
+        Since the nodes names can be anything it doesn't matter if they are strings. The Tail nodes
+        can be dict keys as well.
+
+        Attributes:
+                .data - Where the actual adjacency data is stored
+                .Count - Returns number of nodes in the network
+
+        Methods:
+                .GetAdjacencyArray - Loads the data from a Comma Seperated Value (csv) file into the .data attribute
+                        Use:
+                                AdjacencyArrayObject.GetAdjacencyArray(filename_arg)
+                                Where:
+                                        filename_arg - comma seperated data file
+                .aPrint - Prints the Adjacency Array 
+                        Use:
+                                AdjacencyArrayObject.aPrint()                         
+      
+"""    
+
+class AdjacencyArray(object):     
+        
+        def __init__(self):
                 
+                self.data = None
+
+                self.Count = 0
+
+        def GetAdjacencyArray(self, Filename_arg):   
+
+                AdjArray_var = defaultdict(SinglyLinkedList) # For Each New Node Make Them a Singly Linked List
+
+                MyFile = open(Filename_arg, "r")   # Open the file read only
+
+                reader = csv.reader(MyFile) # This grabs the data using the comma seperated values function(?)
+
+                for ParsedLine in reader: # Each row is a parsed list             
+                        if len(ParsedLine) == 2:                                        
+                                AdjArray_var[ParsedLine[0]].AddItem(ParsedLine[1]) # .AddItem(HeadNode)
+                        elif len(ParsedLine) == 3:                        
+                                AdjArray_var[ParsedLine[0]].AddItem(ParsedLine[1], int(ParsedLine[2])) # .AddItem(HeadNode, EdgeCost)
+                        elif len(ParsedLine) == 4:
+                                AdjArray_var[ParsedLine[0]].AddItem(ParsedLine[1], int(ParsedLine[2]), int(Parsed[3])) # .AddItem(HeadNode, EdgeCost, UpperCapacity)
+                        else:                        
+                                raise ValueError("Error Data Size in Data File Line: ", MyData.index[MyRow])
+
+                self.data = AdjArray_var   
+
+                self.Count = len(AdjArray_var)  
+
+        def aPrint(self):
+
+                MyAdjArray = self.data
+
+                for MyNode in MyAdjArray.keys():             
+                        print("Node ", MyNode, ": ", end = " ")
+                        MyListItem = MyAdjArray[MyNode].GetListHead
+                        while not MyListItem is None:
+                                print(MyListItem.HeadNode, end = " ")
+                                MyListItem = MyListItem.NextItem        
+                        print("\n")          
 
 #----------------------------------------------- Functions ----------------------------------------------- 
 
@@ -284,28 +356,29 @@ def SPA_Djikstra(SourceNode_arg, AdjArray_arg):
         # Initializations 
         InfDist = 32000         #This is a VLN (Very Large Number) distance used to set the initial distances of each node; 
                                 #It is 32k because of the size limitation of integers 
-        DistArray_arg = [[InfDist] for i in range(len(AdjArray_arg))]   # Distance(i) = VLN for all i in N
-        PredArray_arg = [[-1] for i in range(len(AdjArray_arg))]        # Pred(i) = -1 for all i in N   
+        
+        DistArray_arg = [[InfDist] for nodes in AdjArray_arg.keys()]   # Distance(i) = VLN for all i in N
+        PredArray_arg = [[-1] for nodes in AdjArray_arg.keys()]        # Pred(i) = -1 for all i in N   
         S = SinglyLinkedList()   # S = {} 
         S_Prime = SinglyLinkedList()                                                               
-        for i in range(len(AdjArray_arg)):  # S' = N              
-                S_Prime.AddItem(i)
+        for nodes in AdjArray_arg.keys():  # S' = N              
+                S_Prime.AddItem(nodes)
 
         #S_Prime = [int(i) for i in S_Prime]
         
         DistArray_arg[SourceNode_arg] = 0       # Distance(Source) = 0
         PredArray_arg[SourceNode_arg] = 0       # Predecessor(Source) = 0
                
-        while S.Count < len(AdjArray_arg):       # Main Loop
+        while S.Count < AdjArray_arg.Count:       # Main Loop
                 i = 0 
                 # Find the smallest Distance in S'
                 MyListItem = S_Prime.GetListHead
                 MyMinItem = MyListItem
-                while i <= len(S_Prime):
+                while i <= S_Prime.Count:
                         if DistArray_arg[MyListItem.HeadNode] < DistArray_arg[MyMinItem.HeadNode]:
                                 MyMinItem = MyListItem
                         i += 1
-                        MyListItem = S_Prime[i]          
+                        MyListItem = S_Prime.NextItem         
                 print(MyMinItem)
                                 
                 

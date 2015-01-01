@@ -1,56 +1,70 @@
-# This File Inputs an adjaceny list from a file and returns a list of lists
+# This File Inputs an adjaceny list from a data file and returns a list of Singly Linked Lists
+#Help from - http://pymotw.com/2/csv/ 
 # The data must be in the form :
 """ n,0; i1, j1; i2, j2; etc. """
 #As of now this only works on arcs and doesn't work with costs and capacities
 
-import sys
-#sys.path.append('\Users\Craig\Documents\Python\MyProgs')#'/ufs/guido/lib/python')
-#PYTHONPATH=$PYTHONPATH:C:\Users\Craig\Documents\Python\MyProgs
-import CJM_OR_Tools
-
-def GetAdjArray(NodeCount_arg, Filename_arg):
-
-        Flag_var = -1
-
-        # Initializing Adjaceny Array
-        AdjArray_arg = [[Flag_var] for i in range(NodeCount_arg + 1)]    
-
-        with open(Filename_arg, "r") as MyFile:         # This is similar to the VBA with for files  
-          
-                # Reading in data and building the adjacency array 
-                AllData = MyFile.readlines()      
+import csv # Comma Seperated Variable Module
+from CJM_OR_Tools import *
+from collections import defaultdict
+"""
+from collections import defaultdict
+frequencies = defaultdict(int)
+for word in wordlist:
+    frequencies[word] += 1 """
+#def class AdjArray(object):
         
-        for MyLine in AllData: 
-                ReadStuff = MyLine.split(",")         
-                i = int(ReadStuff[0])        
-                j = int(ReadStuff[1]) 
-                if AdjArray_arg[i].count(Flag_var) > 0: # If it is empty
-                        AdjArray_arg[i].append(j)                        
-                        AdjArray_arg[i].remove(Flag_var) 
-                        #AdjArray_arg[i] = j
-                else:                         
-                        AdjArray_arg[i].append(j)   # If it isn't empty add arc to the end  
+       # def __init__(self):
+                
+        
 
-        return AdjArray_arg    
+def GetAdjArray(Filename_arg):   
+
+        AdjArray_var = defaultdict(SinglyLinkedList) # For Each New Node Make Them a Singly Linked List
+
+        MyFile = open(Filename_arg, "r")   # Open the file read only
+
+        reader = csv.reader(MyFile) # This grabs the data using the comma seperated values function(?)
+
+        for ParsedLine in reader: # Each row is a parsed list             
+                if len(ParsedLine) == 2:                                        
+                        AdjArray_var[ParsedLine[0]].AddItem(int(ParsedLine[1])) # .AddItem(HeadNode)
+                elif len(ParsedLine) == 3:                        
+                        AdjArray_var[ParsedLine[0]].AddItem(int(ParsedLine[1]), int(ParsedLine[2])) # .AddItem(HeadNode, EdgeCost)
+                elif len(ParsedLine) == 4:
+                        AdjArray_var[ParsedLine[0]].AddItem(int(ParsedLine[1]), int(ParsedLine[2]), int(Parsed[3])) # .AddItem(HeadNode, EdgeCost, UpperCapacity)
+                else:                        
+                        raise ValueError("Error Data Size in Data File Line: ", MyData.index[MyRow])
+
+        return AdjArray_var
 
 def main() :
-
-        NodeCount = 9
+        """
         Source = 1
 
-        MyAdjArray = GetAdjArray(NodeCount, "Network1.dat")
+        MyAdjArray = GetAdjArray("Network1.dat")
         
-        index = 0 
-        print("")
-        for nodes in MyAdjArray:   
-                if index != 0:              
-                        print("Node %d :" % index, end = " ")
-                        for arc in range(len(MyAdjArray[index])):
-                                print(MyAdjArray[index][arc], end = " ")
-                        print("\n")      
-                index += 1
+        print("\n")
 
-        Distance, Predecessor = SPA_Djikstra(Source, MyAdjArray)
+        for MyNode in MyAdjArray.keys():             
+                print("Node ", MyNode, ": ", end = " ")
+                MyListItem = MyAdjArray[MyNode].GetListHead
+                while not MyListItem is None:
+                        print(MyListItem.HeadNode, end = " ")
+                        MyListItem = MyListItem.NextItem        
+                print("\n")
+        """
+
+        MyAdjArray = AdjacencyArray()
+
+        MyAdjArray.GetAdjacencyArray("Network1.dat")
+
+        MyAdjArray.aPrint()
+
+        print("Count: ", MyAdjArray.Count)
+                
+
+        #Distance, Predecessor = SPA_Djikstra(Source, MyAdjArray)
 
 # This is the standard boilerplate that calls the main() function.
 if __name__ == '__main__':
