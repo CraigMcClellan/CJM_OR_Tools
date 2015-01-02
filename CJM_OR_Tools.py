@@ -84,6 +84,7 @@ class SinglyLinkedListItem(object):
                 SinglyLinkedListObject.Delete(EndNode)
                 Where:
                         EndNode - Head Node, the node or list item flow pushed across this arc is directed to
+        .sPrint - Prints out the Singly Linked List
 
         Updates:
         12/28/2014 - Completed and tested, planning on adding Lower Capacity Functionality at a later date
@@ -154,7 +155,7 @@ class SinglyLinkedList(object):
 
                 self.Count += 1    
         
-        def Delete(self, _TargetedNode):              
+        def Delete(self, _TargetedNode):            
 
                 #initialize the variables we will be using
                 _liPrevious = None
@@ -162,7 +163,7 @@ class SinglyLinkedList(object):
 
                 #iterate through the list until we reach the end
                 while not _liCurrent is None:
-                        if _liCurrent.HeadNode == _TargetedNode:
+                        if int(_liCurrent.HeadNode) == int(_TargetedNode):
                                 if not _liPrevious is None:
                                         _liPrevious.NextItem = _liCurrent.NextItem
                                 else:
@@ -175,6 +176,16 @@ class SinglyLinkedList(object):
                         else:
                                 _liPrevious = _liCurrent
                                 _liCurrent = _liCurrent.NextItem  
+
+        def sPrint(self):
+        
+                MyListItem = self.GetListHead
+                print("Singly Linked List: ", end = " ")
+                while not MyListItem is None:
+                        print(MyListItem.HeadNode, end = " ")
+                        MyListItem = MyListItem.NextItem
+        
+                print("\n")
 
 # SinglyLinkedQueueItem Class
 """     This is a class for a Singly Linked Queue Item (aka Node) data structure.  
@@ -317,15 +328,16 @@ class AdjacencyArray(object):
 
                 reader = csv.reader(MyFile) # This grabs the data using the comma seperated values function(?)
 
-                for ParsedLine in reader: # Each row is a parsed list             
+                for ParsedLine in reader: # Each row is a parsed list      
                         if len(ParsedLine) == 2:                                        
                                 AdjArray_var[ParsedLine[0]].AddItem(ParsedLine[1]) # .AddItem(HeadNode)
                         elif len(ParsedLine) == 3:                        
                                 AdjArray_var[ParsedLine[0]].AddItem(ParsedLine[1], int(ParsedLine[2])) # .AddItem(HeadNode, EdgeCost)
                         elif len(ParsedLine) == 4:
-                                AdjArray_var[ParsedLine[0]].AddItem(ParsedLine[1], int(ParsedLine[2]), int(Parsed[3])) # .AddItem(HeadNode, EdgeCost, UpperCapacity)
+                                # .AddItem(HeadNode, EdgeCost, UpperCapacity)
+                                AdjArray_var[ParsedLine[0]].AddItem(ParsedLine[1], int(ParsedLine[2]), int(Parsed[3])) 
                         else:                        
-                                raise ValueError("Error Data Size in Data File Line: ", MyData.index[MyRow])
+                                raise ValueError("Error Data Size in Data File")
 
                 self.data = AdjArray_var   
 
@@ -357,11 +369,16 @@ def SPA_Djikstra(SourceNode_arg, AdjArray_arg):
         InfDist = 32000         #This is a VLN (Very Large Number) distance used to set the initial distances of each node; 
                                 #It is 32k because of the size limitation of integers 
         
-        DistArray_arg = [[InfDist] for nodes in AdjArray_arg.keys()]   # Distance(i) = VLN for all i in N
-        PredArray_arg = [[-1] for nodes in AdjArray_arg.keys()]        # Pred(i) = -1 for all i in N   
+        DistArray_arg = defaultdict(int) 
+        PredArray_arg = defaultdict(int)       
+
+        for nodes in AdjArray_arg.data.keys():
+                DistArray_arg[nodes] = InfDist  # Distance(i) = VLN for all i in N
+                PredArray_arg[nodes] = -1       # Pred(i) = -1 for all i in N           
+                
         S = SinglyLinkedList()   # S = {} 
         S_Prime = SinglyLinkedList()                                                               
-        for nodes in AdjArray_arg.keys():  # S' = N              
+        for nodes in AdjArray_arg.data.keys():  # S' = N              
                 S_Prime.AddItem(nodes)
 
         #S_Prime = [int(i) for i in S_Prime]
@@ -370,17 +387,29 @@ def SPA_Djikstra(SourceNode_arg, AdjArray_arg):
         PredArray_arg[SourceNode_arg] = 0       # Predecessor(Source) = 0
                
         while S.Count < AdjArray_arg.Count:       # Main Loop
-                i = 0 
-                # Find the smallest Distance in S'
-                MyListItem = S_Prime.GetListHead
-                MyMinItem = MyListItem
-                while i <= S_Prime.Count:
-                        if DistArray_arg[MyListItem.HeadNode] < DistArray_arg[MyMinItem.HeadNode]:
-                                MyMinItem = MyListItem
-                        i += 1
-                        MyListItem = S_Prime.NextItem         
-                print(MyMinItem)
-                                
+                
+                # Find the smallest Distance in S' and point to it with MinListItem             
+                MyListItem = S_Prime.GetListHead # Get the first item in S'
+                S_Prime.sPrint()
+                MinListItem = AdjArray_arg.data[MyListItem.HeadNode].GetListHead # Grab the corresponding node from the Adjacency Array
+                MyListItem = MinListItem # We have a marked node but need to grab it from the Adj Array in order to get the right list head
+                while not MyListItem is None:
+                        if DistArray_arg[MyListItem.HeadNode] < DistArray_arg[MinListItem.HeadNode]:
+                                print("List Node: = ", DistArray_arg[MyListItem], " <", MyListItem.ArcCost + DistArray_arg[MinListItem.HeadNode])
+                                MinListItem = MyListItem
+                        MyListItem = MyListItem.NextItem   
+
+                # Add the shortest distance node to the S List and Remove it from S' thus marking it permanent
+                S.AddItem(MinListItem.HeadNode)
+                S_Prime.Delete(MinListItem.HeadNode)
+                # For (i,j) in A(i,j)
+                MyListItem = AdjArray_arg.data[MinListItem.HeadNode].GetListHead
+                while not MyListItem is None:
+                        print("List Node: = ", DistArray_arg[MyListItem], " >", MyListItem.ArcCost + DistArray_arg[MinListItem.HeadNode])
+                        if DistArray_arg[MyListItem.HeadNode] > DistArray_arg[MinListItem.HeadNode] + MyListItem.ArcCost: #if D(j) > D(i) + c(i,j)
+                                DistArray_arg[MyListItem.HeadNode] = DistArray_arg[MinListItem.HeadNode] + MyListItem.ArcCost #then D(j) = D(i) + c(i,j)  
+                                PredArray_arg[MyListItem.HeadNode] = MinListItem.HeadNode # Predecessor(j) = i
+                        MyListItem = MyListItem.NextItem                                   
                 
         return DistArray_arg, PredArray_arg    
 
