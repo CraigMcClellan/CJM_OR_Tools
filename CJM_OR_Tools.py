@@ -26,7 +26,7 @@ import csv # Comma Seperated Variable Module
         .HeadNode = Head Node, the node or list item flow pushed across this arc is directed to; default = None
         .ArcCost = Edge/Arc Cost, this is the cost or impact of pushing flow across this edge/arc; default = None 
         .UpperCapacity = The maximum amount of flow that can be pushed across this edge/arc; default = None
-        .NextItem = The List Item or Node that follows this particular node; default  = None       
+        .NextItem = The List Item or Node that follows this particular node as a SinglyLnkedListItem; default  = None       
         
         Methods:
         .SetNextItem - This method allows for the update of the NextItem attribute       
@@ -39,10 +39,10 @@ class SinglyLinkedListItem(object):
                 self.HeadNode = slli_HeadNode
                 self.ArcCost = slli_ArcCost
                 self.UpperCapacity = slli_UpperCapacity
-                self.NextItem = slli_NextItem              
+                self.NextItem = slli_NextItem   # as SinglyLinkedListItem           
         
         def SetNextItem(self, slli_tempHdNode):
-                self.NextItem = slli_tempHdNode
+                self.NextItem = slli_tempHdNode # as SinglyLinkedListItem
 
         def __Terminate__(self):
                 self.NextItem = None 
@@ -97,7 +97,7 @@ class SinglyLinkedList(object):
                 self.Count = 0         
 
         def IsEmpty(self):     
-                if self.GetListHead.HeadNode is None:
+                if self.GetListHead is None: #.HeadNode is None:
                         return True   
                 else:
                         return False  
@@ -163,16 +163,15 @@ class SinglyLinkedList(object):
 
                 #iterate through the list until we reach the end
                 while not _liCurrent is None:
-                        if int(_liCurrent.HeadNode) == int(_TargetedNode):
-                                if not _liPrevious is None:
-                                        _liPrevious.NextItem = _liCurrent.NextItem
-                                else:
+                        if _liCurrent.HeadNode == _TargetedNode:
+                                if _liPrevious is None:
                                         self.GetListHead = _liCurrent.NextItem
-                                self.Count -= 1                                   
-                                break
-                        elif _liCurrent is None:
-                                raise ValueError("Node not present in Singly Linked List")
-                                break
+                                else:
+                                        _liPrevious.NextItem = _liCurrent.NextItem
+                                self.Count -= 1     
+                                if self.Count == 0:
+                                        self.GetListHead = None                              
+                                _liCurrent = None
                         else:
                                 _liPrevious = _liCurrent
                                 _liCurrent = _liCurrent.NextItem  
@@ -293,8 +292,8 @@ class SinglyLinkedQueue(object):
 """     
         This is an attempt at making an Adjacency Array class. I call it an Adjacency Array
         because of convention but really my implementation is a Dict of Singly Linked Lists.
-        Since the nodes names can be anything it doesn't matter if they are strings. The Tail nodes
-        can be dict keys as well.
+        The names of the nodes with this implementation do not have to be integers, so they can
+        be strings or other meaningful means os referencing nodes.
 
         Attributes:
                 .data - Where the actual adjacency data is stored
@@ -345,11 +344,9 @@ class AdjacencyArray(object):
 
         def aPrint(self):
 
-                MyAdjArray = self.data
-
-                for MyNode in MyAdjArray.keys():             
+                for MyNode in self.data.keys():             
                         print("Node ", MyNode, ": ", end = " ")
-                        MyListItem = MyAdjArray[MyNode].GetListHead
+                        MyListItem = self.data[MyNode].GetListHead
                         while not MyListItem is None:
                                 print(MyListItem.HeadNode, end = " ")
                                 MyListItem = MyListItem.NextItem        
@@ -359,9 +356,12 @@ class AdjacencyArray(object):
 
 # Djikstra's Shortest Path Algorithm using lists
 """    
-         Implementation of Djikstra's Shortest Path Algorithm to find the shortest path
+        Implementation of Djikstra's Shortest Path Algorithm to find the shortest path
         from a Source Node to all other nodes in a network.  This is the most least efficient
-        implementation using only Lists """
+        implementation using only Lists 
+
+        This implementation is done using Singly Linked Lists and My own Adjacency Array Class. 
+"""
 
 def SPA_Djikstra(SourceNode_arg, AdjArray_arg):
 
@@ -369,43 +369,42 @@ def SPA_Djikstra(SourceNode_arg, AdjArray_arg):
         InfDist = 32000         #This is a VLN (Very Large Number) distance used to set the initial distances of each node; 
                                 #It is 32k because of the size limitation of integers 
         
+        SouceNode_arg = SourceNode_arg # insurance        
+
         DistArray_arg = defaultdict(int) 
         PredArray_arg = defaultdict(int)       
 
         for nodes in AdjArray_arg.data.keys():
                 DistArray_arg[nodes] = InfDist  # Distance(i) = VLN for all i in N
-                PredArray_arg[nodes] = -1       # Pred(i) = -1 for all i in N           
+                PredArray_arg[nodes] = -1       # Pred(i) = -1 for all i in N         
                 
         S = SinglyLinkedList()   # S = {} 
-        S_Prime = SinglyLinkedList()                                                               
+        S_Prime = SinglyLinkedList() #Both S and S' are SinglyLinkedLists where AdjArray.data is an "array" of lists                                                     
         for nodes in AdjArray_arg.data.keys():  # S' = N              
-                S_Prime.AddItem(nodes)
+                S_Prime.AddItem(nodes) # We are putting all the nodes in S_Prime but these nodes are NOT SinglyLinkedListItems just keys
 
         #S_Prime = [int(i) for i in S_Prime]
         
         DistArray_arg[SourceNode_arg] = 0       # Distance(Source) = 0
         PredArray_arg[SourceNode_arg] = 0       # Predecessor(Source) = 0
-               
+ 
         while S.Count < AdjArray_arg.Count:       # Main Loop
                 
-                # Find the smallest Distance in S' and point to it with MinListItem             
-                MyListItem = S_Prime.GetListHead # Get the first item in S'
-                S_Prime.sPrint()
-                MinListItem = AdjArray_arg.data[MyListItem.HeadNode].GetListHead # Grab the corresponding node from the Adjacency Array
-                MyListItem = MinListItem # We have a marked node but need to grab it from the Adj Array in order to get the right list head
+                # Find the smallest Distance in S' and point to it with MinListItems                  
+                MyListItem = S_Prime.GetListHead         
+                MinListItem = MyListItem 
                 while not MyListItem is None:
                         if DistArray_arg[MyListItem.HeadNode] < DistArray_arg[MinListItem.HeadNode]:
-                                print("List Node: = ", DistArray_arg[MyListItem], " <", MyListItem.ArcCost + DistArray_arg[MinListItem.HeadNode])
                                 MinListItem = MyListItem
-                        MyListItem = MyListItem.NextItem   
+                        MyListItem = MyListItem.NextItem
 
                 # Add the shortest distance node to the S List and Remove it from S' thus marking it permanent
                 S.AddItem(MinListItem.HeadNode)
                 S_Prime.Delete(MinListItem.HeadNode)
+
                 # For (i,j) in A(i,j)
                 MyListItem = AdjArray_arg.data[MinListItem.HeadNode].GetListHead
                 while not MyListItem is None:
-                        print("List Node: = ", DistArray_arg[MyListItem], " >", MyListItem.ArcCost + DistArray_arg[MinListItem.HeadNode])
                         if DistArray_arg[MyListItem.HeadNode] > DistArray_arg[MinListItem.HeadNode] + MyListItem.ArcCost: #if D(j) > D(i) + c(i,j)
                                 DistArray_arg[MyListItem.HeadNode] = DistArray_arg[MinListItem.HeadNode] + MyListItem.ArcCost #then D(j) = D(i) + c(i,j)  
                                 PredArray_arg[MyListItem.HeadNode] = MinListItem.HeadNode # Predecessor(j) = i

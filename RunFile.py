@@ -3,6 +3,7 @@ from CJM_OR_Tools import *
 # Program Runs Stuff
 
 def main():
+        
 
         XArray = AdjacencyArray()
 
@@ -14,13 +15,13 @@ def main():
 
         print("\n \n")
 
-        SourceNode = "8"
+        MySourceNode = "8"
 
-        Dist_Array, Pred_Array = SPA_Djikstra(SourceNode, XArray)
+        Dist_Array, Pred_Array = SPA_Djikstra(MySourceNode, XArray)
 
         print("----------- Results ---------- \n \n")
         for node in XArray.data.keys():
-                print("From Node ", SourceNode," to Node(", node, ") - Dist:", Dist_Array[node]," Pred:", Pred_Array[node])
+                print("From Node ", MySourceNode," to Node(", node, ") - Dist:", Dist_Array[node]," Pred:", Pred_Array[node])
 
         """        
         X = SinglyLinkedList()
@@ -32,10 +33,12 @@ def main():
         X.AddItem("3")
 
         X.sPrint()
+        print("lsthead: ", X.GetListHead.HeadNode)
 
-        X.Delete("2")
+        X.Delete("1")
 
         X.sPrint()
+        print("lsthead: ", X.GetListHead.HeadNode)
         """
                 
 
